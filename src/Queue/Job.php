@@ -181,4 +181,15 @@ abstract class Job
     {
         return $this->released;
     }
+
+    /**
+     * Note: 确定任务是否重新发布或删除
+     * Date: 2024-02-08
+     * Time: 14:50
+     * @return bool
+     */
+    public function isDeletedOrReleased()
+    {
+        return $this->isDeleted() || $this->isRelease();
+    }
 }
