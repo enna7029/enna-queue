@@ -3,7 +3,16 @@
 namespace Enna\Queue;
 
 use Enna\Framework\Manager;
+use Enna\Queue\Queue\Connector\Database;
+use Enna\Queue\Queue\Connector\Redis;
 
+/**
+ * Class Queue
+ * @package Enna\Queue
+ *
+ * @mixin Database
+ * @mixin Redis
+ */
 class Queue extends Manager
 {
     protected $namespace = '\\Enna\\Queue\\Queue\\Connector\\';
@@ -25,10 +34,10 @@ class Queue extends Manager
          */
         $driver = parent::createDriver($name);
 
-        $driver->setApp($this->app)->setConnection($name);
+        return $driver->setApp($this->app)->setConnection($name);
     }
 
-    protected function connection($name = null)
+    public function connection($name = null)
     {
         return $this->driver($name);
     }

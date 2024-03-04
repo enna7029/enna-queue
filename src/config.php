@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => 'sync',
+    'default' => 'database',
     'connections' => [
         'sync' => [
             'type' => 'sync',
@@ -24,7 +24,7 @@ return [
         ],
     ],
     'failed' => [
-        'type' => 'none',
+        'type' => 'database',
         'table' => 'failed_jobs'
     ],
 ];

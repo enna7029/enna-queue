@@ -33,7 +33,8 @@ class Database extends Connector
     protected $default;
 
     /**
-     * 任务的超时时间
+     * 任务的重试间隔时间(或者说是:多少时间后重试)
+     * 解释:这个值最好要大于任务的最长时间时间
      * @var int
      */
     protected $retryAfter;
@@ -53,16 +54,43 @@ class Database extends Connector
         return new self($connection, $config['table'], $config['queue'], $config['retry_after'] ?? 60);
     }
 
+    /**
+     * Note: 推送数据到指定的队列
+     * Date: 2024-02-23
+     * Time: 16:25
+     * @param mixed $job 任务类名称和任务实例
+     * @param string $data 负载的数据
+     * @param string $queue 队列名称
+     * @return int|mixed|string
+     */
     public function push($job, $data = '', $queue = null)
     {
         return $this->pushToDatabase($queue, $this->createPayload($job, $data));
     }
 
+    /**
+     * Note: 推送原始数据到指定的队列中
+     * Date: 2024-02-23
+     * Time: 16:26
+     * @param mixed $payload 负载的数据
+     * @param string $queue 队列
+     * @param array $options 选项
+     * @return int|mixed|string
+     */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
         return $this->pushToDatabase($queue, $payload);
     }
 
+    /**
+     * Note: 批量加入消息
+     * Date: 2024-02-23
+     * Time: 16:38
+     * @param mixed $jobs
+     * @param string $data
+     * @param null $queue
+     * @return int
+     */
     public function bulk($jobs, $data = '', $queue = null)
     {
         $queue = $this->getQueue($queue);
@@ -85,6 +113,16 @@ class Database extends Connector
         return $this->db->name($this->table)->insertAll($allData);
     }
 
+    /**
+     * Note: 延迟推送数据到指定的队列
+     * Date: 2024-02-23
+     * Time: 16:40
+     * @param int $delay
+     * @param mixed $job
+     * @param string $data
+     * @param null $queue
+     * @return int|mixed|string
+     */
     public function later($delay, $job, $data = '', $queue = null)
     {
         return $this->pushToDatabase($queue, $this->createPayload($job, $data), $delay);
@@ -126,6 +164,13 @@ class Database extends Connector
         ]);
     }
 
+    /**
+     * Note: 获取队列的第一个消息
+     * Date: 2024-02-19
+     * Time: 14:38
+     * @param string|null $queue 队列名称
+     * @return mixed
+     */
     public function pop($queue = null)
     {
         $queue = $this->getQueue($queue);
@@ -162,6 +207,14 @@ class Database extends Connector
         return $job ? (object)$job : null;
     }
 
+    /**
+     * Note: 标记任务并设置保留时间
+     * Date: 2024-03-01
+     * Time: 16:29
+     * @param stdClass $job 
+     * @return mixed
+     * @throws \Enna\Framework\Exception
+     */
     protected function markJobAsReserved($job)
     {
         $this->db

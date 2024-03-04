@@ -9,7 +9,7 @@ use Enna\Queue\Queue\Connector\Database as DatabaseQueue;
 class Database extends Job
 {
     /**
-     * 任务对象
+     * 任务消息对象
      * @var Object
      */
     protected $job;
@@ -20,7 +20,7 @@ class Database extends Job
      */
     protected $database;
 
-    public function __construct(App $app, DatabaseQueue $database, $job, $connection, $queua)
+    public function __construct(App $app, DatabaseQueue $database, $job, $connection, $queue)
     {
         $this->app = $app;
         $this->database = $database;
@@ -35,7 +35,7 @@ class Database extends Job
      * Time: 10:37
      * @return void
      */
-    protected function delete()
+    public function delete()
     {
         parent::delete();
         $this->database->deleteReserved($this->job->id);
@@ -48,7 +48,7 @@ class Database extends Job
      * @param int $delay
      * @return void
      */
-    protected function release($delay = 0)
+    public function release($delay = 0)
     {
         parent::release($delay);
 
@@ -63,7 +63,7 @@ class Database extends Job
      * Time: 10:53
      * @return int
      */
-    protected function attempts()
+    public function attempts()
     {
         return (int)$this->job->attempts;
     }
@@ -74,7 +74,7 @@ class Database extends Job
      * Time: 10:54
      * @return string
      */
-    protected function getRawBody()
+    public function getRawBody()
     {
         return $this->job->payload;
     }

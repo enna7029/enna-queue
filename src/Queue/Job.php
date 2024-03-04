@@ -2,6 +2,7 @@
 
 namespace Enna\Queue\Queue;
 
+use Exception;
 use Enna\Framework\App;
 use Enna\Orm\Contract\ConnectionInterface;
 use Enna\Framework\Helper\Arr;
@@ -39,6 +40,12 @@ abstract class Job
     protected $released = false;
 
     /**
+     * 定义任务是否失败
+     * @var bool
+     */
+    protected $failed = false;
+
+    /**
      * 任务处理实例
      * @var object
      */
@@ -68,6 +75,22 @@ abstract class Job
         [, $method] = $this->getParsedJob();
 
         $instance->{$method}($this, $this->payload('data'));
+    }
+
+    /**
+     * Note: 处理任务失败造成的异常
+     * Date: 2024-02-19
+     * Time: 18:15
+     * @param Exception $e
+     * @return void
+     */
+    public function failed($e)
+    {
+        $instance = $this->getResolvedJob();
+
+        if (method_exists($instance, 'failed')) {
+            $instance->failed($this->payload('data'), $e);
+        }
     }
 
     /**
@@ -130,7 +153,7 @@ abstract class Job
         if (empty($this->payload)) {
             $this->payload = json_decode($this->getRawBody(), true);
         }
-        if (empty($this->name)) {
+        if (empty($name)) {
             return $this->payload;
         }
 
@@ -191,5 +214,92 @@ abstract class Job
     public function isDeletedOrReleased()
     {
         return $this->isDeleted() || $this->isRelease();
+    }
+
+    /**
+     * Note: 是否任务失败
+     * Date: 2024-02-19
+     * Time: 18:28
+     * @return bool
+     */
+    public function hasFailed()
+    {
+        return $this->failed;
+    }
+
+    /**
+     * Note: 标记任务为失败
+     * Date: 2024-02-19
+     * Time: 18:29
+     */
+    public function markAsFailed()
+    {
+        $this->failed = true;
+    }
+
+    /**
+     * Note: 最大尝试次数
+     * Date: 2024-02-19
+     * Time: 18:39
+     * @return array|mixed
+     */
+    public function maxTries()
+    {
+        return $this->payload('maxTries');
+    }
+
+    /**
+     * Note: 获取任务可以运行的秒数
+     * Date: 2024-02-19
+     * Time: 15:04
+     * @return int|mixed
+     */
+    public function timeout()
+    {
+        return $this->payload('timeout');
+    }
+
+    /**
+     * Note: 得到任务超时的时间戳
+     * Date: 2024-02-20
+     * Time: 9:29
+     * @return int|null
+     */
+    public function timeoutAt()
+    {
+        return $this->payload('timeoutAt');
+    }
+
+    /**
+     * Note: 得到队列任务的类名称
+     * Date: 2024-02-20
+     * Time: 9:30
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->payload('job');
+    }
+
+    /**
+     * Note: 得到任务所属连接的名称
+     * Date: 2024-02-20
+     * Time: 9:33
+     * @return string
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * Note: 得到任务所属队列的名称
+     * Date: 2024-02-20
+     * Time: 9:34
+     * @return string|null
+     */
+    public function getQueue()
+    {
+        return $this->queue;
     }
 }
