@@ -84,7 +84,6 @@ class Worker
         $lastRestart = $this->getTimestampOfLastQueueRestart();
 
         while (true) {
-
             $job = $this->getNextJob($this->queue->connection($connection), $queue);
 
             if ($this->supportsAsyncSignals()) {
@@ -114,7 +113,7 @@ class Worker
      */
     public function runNextJob($connection, $queue, $delay = 0, $sleep = 3, $maxTries = 0)
     {
-        $this->getNextJob($this->queue->connection($connection), $queue);
+        $job = $this->getNextJob($this->queue->connection($connection), $queue);
 
         if ($job) {
             $this->runJob($job, $connection, $maxTries, $delay);

@@ -18,7 +18,7 @@ class Retry extends Command
     public function handle()
     {
         foreach ($this->getJobIds() as $id) {
-            $job = $this->app['queue.failter']->find($id);
+            $job = $this->app['queue.failer']->find($id);
 
             if (is_null($job)) {
                 $this->output->error("Unable to find failed job with ID [{$id}].");
@@ -58,7 +58,7 @@ class Retry extends Command
      */
     protected function retryJob($job)
     {
-        $this->app['queue.failer']->connection($job['connection'])->pushRaw(
+        $this->app['queue']->connection($job['connection'])->pushRaw(
             $this->resetAttempts($job['payload']),
             $job['queue']
         );

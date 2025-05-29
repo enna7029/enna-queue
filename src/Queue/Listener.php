@@ -69,14 +69,14 @@ class Listener
     {
         $command = array_filter([
             $this->phpBinary(),
-            'think',
+            'enna',
             'queue:work',
             $connection,
             '--once',
             "--queue={$queue}",
             "--delay={$delay}",
             "--sleep={$sleep}",
-            "--maxTries={$maxTries}",
+            "--tries={$maxTries}",
             "--memory={$memory}",
         ], function ($value) {
             return !is_null($value);

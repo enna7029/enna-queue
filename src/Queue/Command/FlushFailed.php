@@ -14,7 +14,7 @@ class FlushFailed extends Command
 
     public function handle()
     {
-        $this->app->get('queue.failter')->flush();
+        $this->app->get('queue.failer')->flush();
 
         $this->output->info('All failed jobs deleted successfully!');
     }

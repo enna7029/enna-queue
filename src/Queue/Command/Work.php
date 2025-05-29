@@ -29,6 +29,7 @@ class Work extends Command
 
     public function configure()
     {
+
         $this->setName('queue:work')
             ->addArgument('connection', Argument::OPTIONAL, 'The name of the queue connection to work', null)
             ->addOption('queue', null, Option::VALUE_OPTIONAL, 'The queue to listen on')
@@ -44,6 +45,7 @@ class Work extends Command
 
     public function execute(Input $input, Output $output)
     {
+
         $connection = $input->getArgument('connection') ?: $this->app->config->get('queue.default');
 
         $queue = $input->getOption('queue') ?: $this->app->config->get("queue.connections.{$connection}.queue", 'default');
